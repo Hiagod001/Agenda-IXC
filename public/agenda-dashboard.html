@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Agenda - Uai Telecom</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="agenda-dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <img src="logo.png" alt="Uai Telecom" class="loading-logo">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+            </div>
+            <p>Carregando agenda...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <img src="logo.png" alt="Uai Telecom" class="header-logo">
+                <h1>Dashboard de Agenda</h1>
+            </div>
+            
+            <div class="header-right">
+                <div class="date-filter">
+                    <label for="dataAgenda">Filtrar por Data:</label>
+                    <input type="date" id="dataAgenda" onchange="carregarAgenda()">
+                </div>
+                
+                <div class="city-filter">
+                    <select id="cidadeAgenda" onchange="carregarAgenda()">
+                        <option value="">Selecione a cidade</option>
+                    </select>
+                </div>
+                
+                <div class="user-info">
+                    <span class="user-name" id="userName">Carregando...</span>
+                    <div class="user-menu">
+                        <button class="user-button" onclick="toggleUserMenu()">
+                            <i class="fas fa-user-circle"></i>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="index.html">
+                                <i class="fas fa-home"></i> Voltar ao Sistema
+                            </a>
+                            <hr>
+                            <a href="/logout">
+                                <i class="fas fa-sign-out-alt"></i> Sair
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="agenda-main">
+        <!-- Sidebar com Nova OS -->
+        <aside class="agenda-sidebar">
+            <div class="nova-os-section">
+                <h3><i class="fas fa-plus-circle"></i> Nova OS</h3>
+                
+                <form id="novaOsForm" class="nova-os-form">
+                    <div class="form-group">
+                        <label for="clienteId">ID do Cliente:</label>
+                        <div class="input-with-button">
+                            <input type="text" id="clienteId" name="id" required placeholder="Contém...">
+                            <button type="button" onclick="buscarCliente()" class="search-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="clienteNome">Cliente:</label>
+                        <input type="text" id="clienteNome" name="cliente" readonly placeholder="Aguardando busca...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cidadeOs">Cidade:</label>
+                        <select id="cidadeOs" name="cidade" required>
+                            <option value="">Selecione a cidade</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="assuntoOs">Assunto:</label>
+                        <select id="assuntoOs" name="assunto" required>
+                            <option value="">Selecione um assunto</option>
+                            <option value="SEM CONEXÃO">Sem Conexão</option>
+                            <option value="CONEXÃO LENTA">Conexão Lenta</option>
+                            <option value="AGENDAMENTO">Agendamento</option>
+                            <option value="INSTALAÇÃO">Instalação</option>
+                            <option value="MANUTENÇÃO">Manutenção</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="observacaoOs">Observações:</label>
+                        <textarea id="observacaoOs" name="observacao" rows="3" placeholder="Observações adicionais..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-adicionar">
+                        <i class="fas fa-plus"></i> Adicionar na Agenda
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Agendamentos Aguardando -->
+            <div class="aguardando-section">
+                <h3><i class="fas fa-clock"></i> Aguardando Agendamento</h3>
+                <div id="agendamentosAguardando" class="agendamentos-list">
+                    <!-- Será preenchido via JavaScript -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- Área Principal da Agenda -->
+        <section class="agenda-content">
+            <div class="agenda-header">
+                <h2>Vagas para <span id="cidadeAtual"></span></h2>
+                <div class="agenda-info">
+                    <span>Olá, <span id="userNameAgenda">hiago</span></span>
+                    <button class="btn-sair" onclick="window.location.href='/logout'">Sair</button>
+                </div>
+            </div>
+            
+            <div class="agenda-grid">
+                <!-- Manhã -->
+                <div class="periodo-section">
+                    <h3 class="periodo-title">MANHÃ</h3>
+                    
+                    <div class="assunto-group">
+                        <h4 class="assunto-title">SEM CONEXÃO (<span id="semConexaoManhaCount">4</span> vagas)</h4>
+                        <div id="semConexaoManha" class="vagas-container" data-periodo="MANHÃ" data-assunto="SEM CONEXÃO">
+                            <!-- Vagas serão preenchidas via JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="assunto-group">
+                        <h4 class="assunto-title">CONEXÃO LENTA (<span id="conexaoLentaManhaCount">2</span> vagas)</h4>
+                        <div id="conexaoLentaManha" class="vagas-container" data-periodo="MANHÃ" data-assunto="CONEXÃO LENTA">
+                            <!-- Vagas serão preenchidas via JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="assunto-group">
+                        <h4 class="assunto-title">AGENDAMENTO (<span id="agendamentoManhaCount">2</span> vagas)</h4>
+                        <div id="agendamentoManha" class="vagas-container" data-periodo="MANHÃ" data-assunto="AGENDAMENTO">
+                            <!-- Vagas serão preenchidas via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tarde -->
+                <div class="periodo-section">
+                    <h3 class="periodo-title">TARDE</h3>
+                    
+                    <div class="assunto-group">
+                        <h4 class="assunto-title">SEM CONEXÃO (<span id="semConexaoTardeCount">4</span> vagas)</h4>
+                        <div id="semConexaoTarde" class="vagas-container" data-periodo="TARDE" data-assunto="SEM CONEXÃO">
+                            <!-- Vagas serão preenchidas via JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="assunto-group">
+                        <h4 class="assunto-title">CONEXÃO LENTA (<span id="conexaoLentaTardeCount">2</span> vagas)</h4>
+                        <div id="conexaoLentaTarde" class="vagas-container" data-periodo="TARDE" data-assunto="CONEXÃO LENTA">
+                            <!-- Vagas serão preenchidas via JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="assunto-group">
+                        <h4 class="assunto-title">AGENDAMENTO (<span id="agendamentoTardeCount">2</span> vagas)</h4>
+                        <div id="agendamentoTarde" class="vagas-container" data-periodo="TARDE" data-assunto="AGENDAMENTO">
+                            <!-- Vagas serão preenchidas via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="agenda-dashboard.js"></script>
+</body>
+</html>
+
