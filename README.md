@@ -1,4 +1,4 @@
-# Sistema de Agenda Uai Telecom - Versão Refatorada
+# Sistema de Agenda Uai Telecom - Versão 1.5
 
 ## Visão Geral
 
