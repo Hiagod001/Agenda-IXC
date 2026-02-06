@@ -86,9 +86,7 @@ uai-agenda-refatorado/
 5. **Acesse o sistema**
    - URL: http://localhost:3001
    - Login: hiago / hiago123 (admin)
-   - Login: suporte / suporte123 (usuário)
-   - Login: agendamento / agenda123 (usuário)
-
+   
 ## Funcionalidades Principais
 
 ### 1. Sistema de Login
