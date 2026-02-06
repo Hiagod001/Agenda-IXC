@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Configuração da API IXC - Uai Telecom</title>
+<link href="style.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+<style>
+        .config-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .config-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .config-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .config-header p {
+            color: var(--medium-gray);
+        }
+        
+        .config-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+        
+        .form-group input {
+            padding: 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-voltar {
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+        }
+        
+        .btn-salvar {
+            background-color: var(--primary-color);
+            color: rgb(202, 44, 44);
+        }
+        
+        .btn-testar {
+            background-color: var(--accent-color);
+            color: rgb(202, 44, 44);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .status-container {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+<div class="header-content">
+<div class="header-left">
+<img alt="Uai Telecom" class="header-logo" src="logo.png"/>
+<h1>Configuração da API IXC</h1>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main>
+<div class="config-container">
+<div class="config-header">
+<h1>Configuração da API IXC</h1>
+<p>Configure os parâmetros de acesso à API do IXC para integração com o sistema de agendamento.</p>
+</div>
+<form class="config-form" id="configForm">
+<div class="form-group">
+<label for="apiUrl">URL da API:</label>
+<input id="apiUrl" name="apiUrl" placeholder="https://exemplo.ixcsoft.com.br/webservice/v1" required="" type="text" value="https://sistema.uaitelecom.com.br/webservice/v1"/>
+</div>
+<div class="form-group">
+<label for="apiToken">Token de Autenticação:</label>
+<input id="apiToken" name="apiToken" placeholder="123:abc123def456..." required="" type="text" value="442:92e76ec9743aee86b39af5199c7f199a0996f1679207c561f901f491c1653d1e"/>
+</div>
+<div class="form-actions">
+<button class="btn btn-voltar" onclick="window.location.href='index.html'" type="button">
+<i class="fas fa-arrow-left"></i> Voltar
+                    </button>
+<button class="btn btn-testar" onclick="testarApi()" type="button">
+<i class="fas fa-vial"></i> Testar API
+                    </button>
+<button class="btn btn-salvar" type="submit">
+<i class="fas fa-save"></i> Salvar Configurações
+                    </button>
+</div>
+</form>
+<div class="status-container" id="statusContainer">
+<p id="statusMessage"></p>
+</div>
+</div>
+</main>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Carregar configurações atuais
+            carregarConfiguracoes();
+            
+            // Configurar formulário
+            document.getElementById('configForm').addEventListener('submit', salvarConfiguracoes);
+        });
+        
+        async function carregarConfiguracoes() {
+            try {
+                const response = await fetch('/api/config/ixc');
+                
+                if (response.ok) {
+                    const config = await response.json();
+                    document.getElementById('apiUrl').value = config.apiUrl || '';
+                    document.getElementById('apiToken').value = config.apiToken || '';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar configurações:', error);
+            }
+        }
+        
+        async function salvarConfiguracoes(event) {
+            event.preventDefault();
+            
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const apiToken = document.getElementById('apiToken').value.trim();
+            
+            if (!apiUrl || !apiToken) {
+                mostrarStatus('Preencha todos os campos obrigatórios.', false);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/config/ixc', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ apiUrl, apiToken })
+                });
+                
+                if (response.ok) {
+                    mostrarStatus('Configurações salvas com sucesso!', true);
+                } else {
+                    const error = await response.json();
+                    mostrarStatus(error.error || 'Erro ao salvar configurações.', false);
+                }
+            } catch (error) {
+                console.error('Erro ao salvar configurações:', error);
+                mostrarStatus('Erro ao salvar configurações.', false);
+            }
+        }
+        
+        async function testarApi() {
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const apiToken = document.getElementById('apiToken').value.trim();
+            
+            if (!apiUrl || !apiToken) {
+                mostrarStatus('Preencha todos os campos obrigatórios para testar a API.', false);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/config/ixc/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ apiUrl, apiToken })
+                });
+                
+                if (response.ok) {
+                    mostrarStatus('Conexão com a API IXC estabelecida com sucesso!', true);
+                } else {
+                    const error = await response.json();
+                    mostrarStatus(error.error || 'Erro ao testar conexão com a API.', false);
+                }
+            } catch (error) {
+                console.error('Erro ao testar API:', error);
+                mostrarStatus('Erro ao testar conexão com a API.', false);
+            }
+        }
+        
+        function mostrarStatus(mensagem, sucesso) {
+            const statusContainer = document.getElementById('statusContainer');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            statusContainer.className = 'status-container';
+            statusContainer.classList.add(sucesso ? 'status-success' : 'status-error');
+            statusMessage.textContent = mensagem;
+            statusContainer.style.display = 'block';
+            
+            // Esconder após 5 segundos
+            setTimeout(() => {
+                statusContainer.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
